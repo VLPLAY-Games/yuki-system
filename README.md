@@ -24,8 +24,7 @@ yuki-core (server / brain)
         └── Devices (all clients connect via yuki-protocol)
               ├── yuki-device-pc
               ├── yuki-device-android
-              ├── yuki-device-clock
-              ├── yuki-device-light
+              ├── yuki-device-frame (FrameOS)
               └── yuki-speaker (ESP32 smart speaker)
 ```
 ## Repository Structure
