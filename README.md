@@ -3,7 +3,7 @@
 Yuki System is an open-source modular ecosystem for smart devices, voice assistants, and IoT integration.  
 It allows users to control multiple devices (PCs, mobile devices, smart speakers, IoT devices) through a central server, using a unified protocol.
 
-> **Note:** This project is in early development. Many components are still being built and may change rapidly.
+> This README is a short overview. For architecture, the full protocol reference, and the security model, see [DOCUMENTATION.md](DOCUMENTATION.md) ([русский](DOCUMENTATION.ru.md), [日本語](DOCUMENTATION.ja.md)). This file is also available in [русский](readme.ru.md) and [日本語](readme.ja.md).
 
 ---
 
@@ -22,8 +22,10 @@ yuki-core (server / brain)
         ├── yuki-webui (web interface)
         │
         └── Devices (all clients connect via yuki-protocol)
-              ├── yuki-device-pc
+              ├── yuki-device-pc (Windows)
+              ├── yuki-device-pc-linux (Linux)
               ├── yuki-device-android
+              ├── yuki-humidifier (ESP32 smart humidifier)
               ├── yuki-device-frame (FrameOS)
               └── yuki-speaker (ESP32 smart speaker)
 ```
@@ -48,27 +50,30 @@ This repository is the **meta repository**. It provides:
 | `yuki-protocol` | Protocol & SDK | Defines message formats, command types, and SDKs for connecting devices |
 | `yuki-webui` | Web Interface | Allows users to monitor devices, send commands, and manage automation |
 | `yuki-speaker` | ESP32 Smart Speaker | Provides voice input/output, connects to the server |
-| `yuki-device-pc` | PC Client | Executes commands from the server |
+| `yuki-device-pc` | Windows Client | Executes commands from the server |
+| `yuki-device-pc-linux` | Linux Client | Same feature set as `yuki-device-pc`, for Linux desktops |
 | `yuki-device-android` | Android Client | Executes commands and notifications on Android devices |
+| `yuki-humidifier` | ESP32 Smart Humidifier | Wi-Fi humidifier device, controllable through the server |
 
 ---
 
 ## Getting Started
 
-Currently, Yuki System is under active development.  
-
-> Code for the core server and device clients will be made public incrementally as development progresses.
+Start `yuki-core`, then `yuki-webui`, then configure whichever device clients you need - each
+module's own README has exact install/run instructions. See [DOCUMENTATION.md](DOCUMENTATION.md)
+for a full walkthrough and the security model.
 
 ---
 
 ## Roadmap
 
-- [ ] Complete Yuki Core server MVP  
-- [ ] Finalize Yuki Protocol specification  
-- [ ] Develop Yuki WebUI with basic device management  
-- [ ] Connect first devices: `yuki-device-pc` & `yuki-speaker`  
-- [ ] Expand device ecosystem (`yuki-device-android`, IoT devices, robots)  
+- [x] Complete Yuki Core server MVP  
+- [x] Finalize Yuki Protocol specification (`yuki/1.0`)  
+- [x] Develop Yuki WebUI with basic device management  
+- [x] Connect first devices: `yuki-device-pc` & `yuki-device-android`  
+- [x] Expand device ecosystem (`yuki-device-pc-linux`, `yuki-humidifier`)  
 - [ ] Integrate AI-based voice assistant functionality  
+- [ ] `yuki-device-frame` (FrameOS)  
 
 ---
 
