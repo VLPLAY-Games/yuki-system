@@ -1,0 +1,46 @@
+name: Release source archive
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build and attach source archive
+        run: |
+          NAME="yuki-${GITHUB_REF_NAME}-source"
+          STAGE="/tmp/$NAME"
+          mkdir -p "$STAGE"
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.gitmodules' \
+            --exclude='.gitignore' \
+            --exclude='**/.git' \
+            --exclude='**/node_modules' \
+            --exclude='**/target' \
+            --exclude='**/build' \
+            --exclude='**/dist' \
+            --exclude='**/__pycache__' \
+            ./ "$STAGE/"
+          cd /tmp
+          zip -rq "${NAME}.zip" "$NAME"
+          tar czf "${NAME}.tar.gz" "$NAME"
+          sha256sum "${NAME}.zip" "${NAME}.tar.gz" > "${NAME}.sha256"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            /tmp/yuki-${{ github.ref_name }}-source.zip
+            /tmp/yuki-${{ github.ref_name }}-source.tar.gz
+            /tmp/yuki-${{ github.ref_name }}-source.sha256
