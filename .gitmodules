@@ -1,0 +1,18 @@
+[submodule "yuki-protocol"]
+	path = yuki-protocol
+	url = https://github.com/VLPLAY-Games/yuki-protocol
+[submodule "yuki-device-pc-linux"]
+	path = yuki-device-pc-linux
+	url = https://github.com/VLPLAY-Games/yuki-device-pc-linux
+[submodule "yuki-device-android"]
+	path = yuki-device-android
+	url = https://github.com/VLPLAY-Games/yuki-device-android
+[submodule "yuki-device-pc"]
+	path = yuki-device-pc
+	url = https://github.com/VLPLAY-Games/yuki-device-pc
+[submodule "yuki-webui"]
+	path = yuki-webui
+	url = https://github.com/VLPLAY-Games/yuki-webui
+[submodule "yuki-core"]
+	path = yuki-core
+	url = https://github.com/VLPLAY-Games/yuki-core
