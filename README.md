@@ -5,8 +5,7 @@ control multiple devices (PCs, phones, IoT devices) through one central server, 
 shared protocol every client speaks.
 
 This repository is the **meta repository**: it has no code of its own, just documentation, the
-architecture overview, and links to every module's own repository. `yuki-speaker` is a separate,
-older ESP32 module not covered by this document or by the ecosystem's 1.0.0 hardening pass.
+architecture overview, and links to every module's own repository.
 
 Also available in [русский](readme.ru.md) and [日本語](readme.ja.md).
 
@@ -18,13 +17,12 @@ Also available in [русский](readme.ru.md) and [日本語](readme.ja.md).
 - [Protocol](#protocol)
 - [Security model](#security-model)
 - [Setting up a deployment](#setting-up-a-deployment)
-- [Roadmap](#roadmap)
 - [License](#license)
 
 ## Overview
 
-Every device in the ecosystem - a Windows/Linux/Android remote-control client, an ESP32 humidifier,
-whatever comes next - connects to one server (`yuki-core`) over WebSocket, authenticates with a
+Every device in the ecosystem - a Windows/Linux/Android remote-control client, whatever comes next -
+connects to one server (`yuki-core`) over WebSocket, authenticates with a
 shared token, and exchanges status/commands/metrics with it in a common JSON format
 ([`yuki-protocol`](https://github.com/VLPLAY-Games/yuki-protocol)). An admin manages the whole thing
 from a web dashboard ([`yuki-webui`](https://github.com/VLPLAY-Games/yuki-webui)): approve new
@@ -50,13 +48,13 @@ authentication, and systemd-managed secrets for anyone who wants them.
           │ browser JS │  │              │          │  one per       │
           │ (/webui)   │  └──────┬───────┘          │  language      │
           └────────────┘         │                  └────────────────┘
-                 ┌────────────────┼─────────────────────┬───────────────┐
-                 │                │                     │               │
-        ┌────────▼───────┐ ┌──────▼───────┐  ┌──────────▼────────┐ ┌────▼─────────────┐
-        │ yuki-device-pc │ │ yuki-device- │  │ yuki-device-pc-   │ │ yuki-humidifier   │
-        │ (Windows, C#)  │ │ android      │  │ linux (Python/    │ │ (ESP32-C3, C++)   │
-        │                │ │ (Kotlin)     │  │ GTK4/libadwaita)  │ │                   │
-        └────────────────┘ └──────────────┘  └────────────────────┘ └───────────────────┘
+                 ┌────────────────┼────────────────────┐
+                 │                │                     │
+        ┌────────▼───────┐ ┌──────▼───────┐  ┌──────────▼─────────┐
+        │ yuki-device-pc │ │ yuki-device- │  │ yuki-device-pc-     │
+        │ (Windows, C#)  │ │ android      │  │ linux (Python/      │
+        │                │ │ (Kotlin)     │  │ GTK4/libadwaita)    │
+        └────────────────┘ └──────────────┘  └──────────────────────┘
 ```
 
 `yuki-core` is the only component every other module talks to directly. Devices connect to
@@ -75,7 +73,6 @@ devices, rotate the token, browse the audit log, ...).
 | [`yuki-device-pc`](https://github.com/VLPLAY-Games/yuki-device-pc) | C# (WinForms) | Windows remote-control client |
 | [`yuki-device-pc-linux`](https://github.com/VLPLAY-Games/yuki-device-pc-linux) | Python (GTK4/libadwaita) | Linux remote-control client, same feature set as the Windows one |
 | [`yuki-device-android`](https://github.com/VLPLAY-Games/yuki-device-android) | Kotlin | Android remote-control client |
-| [`yuki-humidifier`](https://github.com/VLPLAY-Games/yuki-humidifier) | C++ (Arduino/ESP32) | Smart humidifier firmware |
 
 Each module is its own repository with its own README covering exact install/build/run
 instructions, configuration, and dependencies - this document stays at the ecosystem level.
@@ -122,16 +119,16 @@ catalogue, including the two device-authentication handshakes below.
 - **Rate limiting**: `yuki-core` limits handshake attempts per source IP (before any device_id is
   even trusted - stops one IP from brute-forcing many device_ids, each of which would otherwise get
   its own fresh quota) as well as commands per device_id after the handshake.
-- **Capability allow-lists**: every client (PC, Linux, Android, the humidifier) advertises which
+- **Capability allow-lists**: every client (PC, Linux, Android) advertises which
   commands it's willing to run and refuses anything not on that list *locally*, independent of
   whatever `yuki-core` allows - a compromised or misconfigured server can't make a device run a
   command its owner explicitly disabled.
 - **Transport encryption**: **off by default everywhere** (plain `ws://`/`http://`), matching a
   typical trusted-LAN home-automation deployment. Every component supports opting into TLS -
   `yuki-core` (`YUKI_TLS_ENABLED`/`YUKI_TLS_CERT`/`YUKI_TLS_KEY`), `yuki-webui`
-  (`YUKI_WEBUI_TLS_ENABLED`/...), `yuki-humidifier` (`ENABLE_TLS` in `Config.h`), and the desktop/
-  mobile clients simply by using a `wss://`/`https://` address - see each module's own README for
-  exact variable names. If TLS is explicitly enabled but misconfigured (missing cert/key), both
+  (`YUKI_WEBUI_TLS_ENABLED`/...), and the desktop/mobile clients simply by using a
+  `wss://`/`https://` address - see each module's own README for exact variable names. If TLS is
+  explicitly enabled but misconfigured (missing cert/key), both
   `yuki-core` and `yuki-webui` refuse to start rather than silently falling back to plaintext -
   nothing pretends to be encrypted when it isn't. `yuki-webui`'s Settings page has a read-only
   Encryption panel showing the true current state of both the page itself and its core connection.
@@ -149,21 +146,9 @@ doesn't turn `yuki-core` into something safe to expose directly to the public in
 1. Start `yuki-core` (see its README) - note the generated token in `.token`, or set
    `YUKI_AUTH_TOKEN` yourself before first run.
 2. Start `yuki-webui`, log in with `admin`/`admin`, and change the password from Settings.
-3. Configure each device (humidifier via its own AP setup page, PC/Linux/Android clients via their
-   own UI) with `yuki-core`'s address and the token from step 1.
+3. Configure each device client via its own UI with `yuki-core`'s address and the token from step 1.
 4. New devices show up pending in `yuki-webui` - approve them there.
 5. Optionally turn on TLS everywhere once the deployment is otherwise working, per module README.
-
-## Roadmap
-
-- [x] Complete Yuki Core server MVP
-- [x] Finalize Yuki Protocol specification (`yuki/1.0`)
-- [x] Develop Yuki WebUI with basic device management
-- [x] Connect first devices: `yuki-device-pc` & `yuki-device-android`
-- [x] Expand device ecosystem (`yuki-device-pc-linux`, `yuki-humidifier`)
-- [x] Harden authentication, transport, and secrets handling for the 1.0.0 release
-- [ ] Integrate AI-based voice assistant functionality
-- [ ] `yuki-device-frame` (FrameOS)
 
 ## License
 
